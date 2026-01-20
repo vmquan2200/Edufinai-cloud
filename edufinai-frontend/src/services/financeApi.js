@@ -4,7 +4,7 @@
  * All endpoints require JWT authentication
  */
 
-const GATEWAY_BASE_URL = 'http://localhost:8080';
+const GATEWAY_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 const FINANCE_PREFIX = '/finance';
 const JWT_TOKEN_KEY = 'jwt_token';
 

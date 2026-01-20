@@ -1,0 +1,43 @@
+server:
+  port: ${PORT:0}
+
+spring:
+  datasource:
+    url: ${MYSQL_URL:jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:ai_service}?useSSL=true&allowPublicKeyRetrieval=true&characterEncoding=UTF-8}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:123456}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  application:
+    name: ai-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: false
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:ai-service}
+    ip-address: ${EUREKA_INSTANCE_IP:ai-service}
+    secure-port-enabled: ${EUREKA_SECURE_PORT_ENABLED:true}
+    non-secure-port-enabled: ${EUREKA_NON_SECURE_PORT_ENABLED:false}
+
+services:
+  transaction:
+    url: ${FINANCE_SERVICE_URL:http://finance-service}/api/summary/daily
+  userprofile:
+    url: ${AUTH_SERVICE_URL:http://auth-service}/identity/api/userprofile/summary
+  goals:
+    url: ${GAMIFICATION_SERVICE_URL:http://gamification-service}/api/summary/daily
+  learning:
+    url: ${LEARNING_SERVICE_URL:http://learning-service}/api/summary/daily
+
+edufinai:
+  gemini:
+    apiKey: ${GEMINI_API_KEY:}
+  cors:
+    allowedOrigins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000}

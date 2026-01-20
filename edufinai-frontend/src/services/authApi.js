@@ -1,9 +1,10 @@
 /**
  * Auth Service API
  * Base URL: http://localhost:8080/auth (via Gateway)
+ * Railway: Uses REACT_APP_API_URL environment variable
  */
 
-const AUTH_BASE_URL = 'http://localhost:8080/auth';
+const AUTH_BASE_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/auth`;
 
 /**
  * Get JWT token from localStorage

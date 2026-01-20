@@ -3,7 +3,7 @@
  * All requests must go through the API Gateway at http://localhost:8080/ai
  */
 
-const GATEWAY_BASE_URL = 'http://localhost:8080';
+const GATEWAY_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 const AI_PREFIX = '/ai';
 const JWT_TOKEN_KEY = 'jwt_token';
 

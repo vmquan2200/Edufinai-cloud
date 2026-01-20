@@ -1,0 +1,37 @@
+server:
+  port: ${PORT:0}
+
+spring:
+  datasource:
+    # Railway cung cấp MYSQL_URL hoặc các biến riêng lẻ
+    # Format: mysql://user:password@host:port/database
+    url: ${MYSQL_URL:jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:identity}?useSSL=true&allowPublicKeyRetrieval=true&characterEncoding=UTF-8}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:123456}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: false
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:auth-service}
+    ip-address: ${EUREKA_INSTANCE_IP:auth-service}
+    # Railway sử dụng HTTPS cho public URLs
+    secure-port-enabled: ${EUREKA_SECURE_PORT_ENABLED:true}
+    non-secure-port-enabled: ${EUREKA_NON_SECURE_PORT_ENABLED:false}
+
+jwt:
+  signerKey: ${JWT_SECRET:1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij}
+  valid-duration: ${JWT_VALID_DURATION:3600}
+  refreshable-duration: ${JWT_REFRESHABLE_DURATION:36000}

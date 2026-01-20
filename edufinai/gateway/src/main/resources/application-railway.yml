@@ -1,0 +1,97 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: ${CORS_ALLOWED_ORIGINS:*}
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                  - PATCH
+                allowedHeaders:
+                  - "*"
+                allowCredentials: false
+                exposedHeaders:
+                  - "*"
+          routes:
+            - id: gamification-service
+              uri: lb://GAMIFICATION-SERVICE
+              predicates:
+                - Path=/gamification/**
+              filters:
+                - name: RewritePath
+                  args:
+                    regexp: /gamification/?(?<segment>.*)
+                    replacement: /api/v1/gamify/${segment}
+            - id: auth-service
+              uri: lb://AUTH-SERVICE
+              predicates:
+                - Path=/auth/**
+              filters:
+                - name: RewritePath
+                  args:
+                    regexp: /auth/(?<segment>.*)
+                    replacement: /identity/${segment}
+            - id: ai-service
+              uri: lb://AI-SERVICE
+              predicates:
+                - Path=/ai/**
+              filters:
+                - name: RewritePath
+                  args:
+                    regexp: /ai/(?<segment>.*)
+                    replacement: /api/${segment}
+            - id: learning-service
+              uri: lb://LEARNING-SERVICE
+              predicates:
+                - Path=/learning/**
+              filters:
+                - name: RewritePath
+                  args:
+                    regexp: /learning/(?<segment>.*)
+                    replacement: /api/${segment}
+            - id: notification-service
+              uri: lb://NOTIFICATION-SERVICE
+              predicates:
+                - Path=/notification/**
+              filters:
+                - name: RewritePath
+                  args:
+                    regexp: /notification/?(?<segment>.*)
+                    replacement: /api/notifications/${segment}
+            - id: finance-service
+              uri: lb://FINANCE-SERVICE
+              predicates:
+                - Path=/finance/**
+              filters:
+                - name: RewritePath
+                  args:
+                    regexp: /finance/?(?<segment>.*)
+                    replacement: /api/${segment}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: false
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:gateway}
+    ip-address: ${EUREKA_INSTANCE_IP:gateway}
+    secure-port-enabled: ${EUREKA_SECURE_PORT_ENABLED:true}
+    non-secure-port-enabled: ${EUREKA_NON_SECURE_PORT_ENABLED:false}
