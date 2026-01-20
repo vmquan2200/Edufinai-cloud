@@ -1,4 +1,7 @@
-# Dockerfile cho Gateway Service - Railway Optimized
+# Dockerfile Template cho Railway Deployment
+# Copy file này và đổi tên thành Dockerfile cho từng service
+# Thay đổi EXPOSE port nếu cần (nhưng Railway sẽ tự động inject PORT)
+
 FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /workspace
 
@@ -14,7 +17,7 @@ RUN mvn -q -B clean package -DskipTests
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
-# Railway tự động inject PORT
+# Railway tự động inject PORT, nhưng có thể set default
 ENV PORT=8080
 ENV SPRING_PROFILES_ACTIVE=railway
 
@@ -23,6 +26,10 @@ COPY --from=builder /workspace/target/*.jar /app/app.jar
 
 # Expose port (Railway sẽ override PORT env var)
 EXPOSE $PORT
+
+# Health check (optional)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:$PORT/actuator/health || exit 1
 
 # Run application với PORT từ environment variable
 ENTRYPOINT ["sh", "-c", "java -jar -Dserver.port=$PORT /app/app.jar"]
