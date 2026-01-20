@@ -13,16 +13,22 @@
 3. Chọn repository: `Edufinai-cloud`
 
 ### Bước 3: Deploy Eureka (Phải deploy đầu tiên)
-1. Click **"+ New"** → **"GitHub Repo"**
-2. **Root Directory:** `edufinai/eureka`
-3. **Service Name:** `eureka`
-4. **Environment Variables:**
+
+**⚠️ QUAN TRỌNG:** Railway sẽ báo lỗi "could not determine how to build" - ĐÂY LÀ BÌNH THƯỜNG!
+
+1. Click **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. Railway tạo service mới và báo lỗi - **KHÔNG SAO!**
+3. Click vào service → **Settings** → Tìm **"Root Directory"**
+4. Set **Root Directory:** `edufinai/eureka`
+5. Railway sẽ tự động detect Dockerfile và build
+6. **Service Name:** Đổi thành `eureka` (nếu muốn)
+7. **Environment Variables:**
    ```
    SPRING_PROFILES_ACTIVE=railway
    PORT=8761
    ```
-5. **Settings** → **Networking** → Bật **Public Port** → Set port = `8761`
-6. Click **"Deploy"**
+8. **Settings** → **Networking** → Bật **Public Port** → Set port = `8761`
+9. Railway sẽ tự động deploy
 
 ### Bước 4: Tạo Databases
 Với mỗi database:
@@ -39,8 +45,8 @@ Với mỗi database:
 ### Bước 5: Deploy Services
 
 #### Auth Service
-1. **"+ New"** → **"GitHub Repo"**
-2. **Root Directory:** `edufinai/auth-service`
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/auth-service`
 3. **Environment Variables:**
    ```
    SPRING_PROFILES_ACTIVE=railway
@@ -49,71 +55,41 @@ Với mỗi database:
    ```
 
 #### Finance Service
-1. **Root Directory:** `edufinai/finance-service`
-2. **Environment Variables:**
-   ```
-   SPRING_PROFILES_ACTIVE=railway
-   EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=https://<eureka-url>/eureka/
-   MYSQL_URL=<copy_from_mysql-finance>
-   ```
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/finance-service`
+3. **Environment Variables:** (giống như trên)
 
 #### Learning Service
-1. **Root Directory:** `edufinai/learning-service`
-2. **Environment Variables:**
-   ```
-   SPRING_PROFILES_ACTIVE=railway
-   EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=https://<eureka-url>/eureka/
-   MYSQL_URL=<copy_from_mysql-learning>
-   ```
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/learning-service`
+3. **Environment Variables:** (giống như trên)
 
 #### Gamification Service
-1. **Root Directory:** `edufinai/gamification-service`
-2. **Environment Variables:**
-   ```
-   SPRING_PROFILES_ACTIVE=railway
-   EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=https://<eureka-url>/eureka/
-   MYSQL_URL=<copy_from_mysql-gamification>
-   REDIS_URL=<copy_from_redis>
-   ```
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/gamification-service`
+3. **Environment Variables:** (giống như trên)
 
 #### AI Service
-1. **Root Directory:** `edufinai/ai-service`
-2. **Environment Variables:**
-   ```
-   SPRING_PROFILES_ACTIVE=railway
-   EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=https://<eureka-url>/eureka/
-   MYSQL_URL=<copy_from_mysql-ai>
-   GEMINI_API_KEY=<your_key>
-   ```
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/ai-service`
+3. **Environment Variables:** (giống như trên)
 
 #### Firebase Notification Service
-1. **Root Directory:** `edufinai/firebase-notification`
-2. **Environment Variables:**
-   ```
-   SPRING_PROFILES_ACTIVE=railway
-   EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=https://<eureka-url>/eureka/
-   MYSQL_URL=<copy_from_mysql-firebase>
-   ```
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/firebase-notification`
+3. **Environment Variables:** (giống như trên)
 
 #### Gateway (QUAN TRỌNG)
-1. **Root Directory:** `edufinai/gateway`
-2. **Environment Variables:**
-   ```
-   SPRING_PROFILES_ACTIVE=railway
-   EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=https://<eureka-url>/eureka/
-   PORT=8080
-   CORS_ALLOWED_ORIGINS=https://<frontend-url>
-   ```
-3. **Settings** → **Networking** → Bật **Public Port** → Set port = `8080`
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/gateway`
+3. **Environment Variables:** (giống như trên)
+4. **Settings** → **Networking** → Bật **Public Port** → Set port = `8080`
 
 #### Frontend
-1. **Root Directory:** `edufinai-frontend`
-2. **Environment Variables:**
-   ```
-   REACT_APP_API_URL=https://<gateway-url>
-   NODE_ENV=production
-   ```
-3. **Settings** → **Networking** → Bật **Public Port**
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai-frontend`
+3. **Environment Variables:** (giống như trên)
+4. **Settings** → **Networking** → Bật **Public Port**
 
 ### Bước 6: Kiểm Tra
 1. Mở Eureka: `https://<eureka-url>`
@@ -125,10 +101,15 @@ Với mỗi database:
 
 ## 📝 Lưu Ý Quan Trọng
 
-1. **Thứ tự deploy:** Eureka → Databases → Services → Gateway → Frontend
-2. **Eureka URL:** Copy từ Eureka service's public URL
-3. **Database URLs:** Copy từ mỗi database service's connection string
-4. **CORS:** Update `CORS_ALLOWED_ORIGINS` trong Gateway với frontend URL
+1. **Root Directory:** **PHẢI** set Root Directory cho mỗi service trong Settings!
+2. **Thứ tự deploy:** Eureka → Databases → Services → Gateway → Frontend
+3. **Eureka URL:** Copy từ Eureka service's public URL
+4. **Database URLs:** Copy từ mỗi database service's connection string
+5. **CORS:** Update `CORS_ALLOWED_ORIGINS` trong Gateway với frontend URL
+
+## ⚠️ Nếu Gặp Lỗi "could not determine how to build"
+
+Xem file `RAILWAY_FIX_ROOT_DIRECTORY.md` để biết cách fix chi tiết!
 
 ---
 

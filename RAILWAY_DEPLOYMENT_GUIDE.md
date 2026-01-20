@@ -129,14 +129,21 @@ Railway tự động tạo các environment variables cho mỗi database:
 
 ## 🚀 Bước 4: Deploy Services
 
+### ⚠️ QUAN TRỌNG: Set Root Directory
+
+**Railway sẽ không tự động detect Dockerfile ở root!** Bạn **PHẢI** set Root Directory cho mỗi service.
+
 ### 4.1. Deploy Eureka Server (Phải deploy đầu tiên)
 
 1. Click **"+ New"** → **"GitHub Repo"**
-2. Chọn repository của bạn
-3. Railway sẽ detect Dockerfile
-4. **Root Directory:** `edufinai/eureka`
-5. **Service Name:** `eureka`
-6. Click **"Deploy"**
+2. Chọn repository của bạn: `Edufinai-cloud`
+3. Railway sẽ báo lỗi "could not determine how to build" - **ĐÂY LÀ BÌNH THƯỜNG!**
+4. Vào **Settings** của service vừa tạo
+5. Tìm mục **"Root Directory"** hoặc **"Source"**
+6. Set **Root Directory:** `edufinai/eureka`
+7. Railway sẽ tự động detect Dockerfile trong thư mục đó
+8. **Service Name:** Đổi tên thành `eureka` (nếu muốn)
+9. Click **"Deploy"** hoặc Railway sẽ tự động deploy
 
 **Environment Variables:**
 ```
@@ -149,10 +156,13 @@ PORT=8761
 ### 4.2. Deploy Auth Service
 
 1. Click **"+ New"** → **"GitHub Repo"**
-2. Chọn repository
-3. **Root Directory:** `edufinai/auth-service`
-4. **Service Name:** `auth-service`
-5. Click **"Deploy"**
+2. Chọn repository: `Edufinai-cloud`
+3. Railway sẽ báo lỗi - **KHÔNG SAO**, tiếp tục bước sau
+4. Vào **Settings** → **"Root Directory"**
+5. Set **Root Directory:** `edufinai/auth-service`
+6. Railway sẽ detect Dockerfile và tự động build
+7. **Service Name:** Đổi thành `auth-service`
+8. Railway sẽ tự động deploy
 
 **Environment Variables:**
 ```
@@ -176,8 +186,10 @@ EUREKA_INSTANCE_IP=auth-service
 
 Tương tự như auth-service:
 
-1. **Root Directory:** `edufinai/finance-service`
-2. **Service Name:** `finance-service`
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. Vào **Settings** → **"Root Directory"**
+3. Set **Root Directory:** `edufinai/finance-service`
+4. **Service Name:** `finance-service`
 
 **Environment Variables:**
 ```
@@ -188,8 +200,9 @@ MYSQL_URL=<mysql-finance_connection_string>
 
 ### 4.4. Deploy Learning Service
 
-1. **Root Directory:** `edufinai/learning-service`
-2. **Service Name:** `learning-service`
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/learning-service`
+3. **Service Name:** `learning-service`
 
 **Environment Variables:**
 ```
@@ -200,8 +213,9 @@ MYSQL_URL=<mysql-learning_connection_string>
 
 ### 4.5. Deploy Gamification Service
 
-1. **Root Directory:** `edufinai/gamification-service`
-2. **Service Name:** `gamification-service`
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/gamification-service`
+3. **Service Name:** `gamification-service`
 
 **Environment Variables:**
 ```
@@ -213,8 +227,9 @@ REDIS_URL=<redis_connection_string>
 
 ### 4.6. Deploy AI Service
 
-1. **Root Directory:** `edufinai/ai-service`
-2. **Service Name:** `ai-service`
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/ai-service`
+3. **Service Name:** `ai-service`
 
 **Environment Variables:**
 ```
@@ -226,8 +241,9 @@ GEMINI_API_KEY=<your_gemini_api_key>
 
 ### 4.7. Deploy Firebase Notification Service
 
-1. **Root Directory:** `edufinai/firebase-notification`
-2. **Service Name:** `firebase-notification`
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/firebase-notification`
+3. **Service Name:** `firebase-notification`
 
 **Environment Variables:**
 ```
@@ -238,8 +254,9 @@ MYSQL_URL=<mysql-firebase_connection_string>
 
 ### 4.8. Deploy Gateway (Quan trọng nhất)
 
-1. **Root Directory:** `edufinai/gateway`
-2. **Service Name:** `gateway`
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai/gateway`
+3. **Service Name:** `gateway`
 
 **Environment Variables:**
 ```
@@ -256,8 +273,10 @@ PORT=8080
 
 ### 4.9. Deploy Frontend
 
-1. **Root Directory:** `edufinai-frontend`
-2. **Service Name:** `frontend`
+1. **"+ New"** → **"GitHub Repo"** → Chọn `Edufinai-cloud`
+2. **Settings** → **"Root Directory"** → `edufinai-frontend`
+3. **Service Name:** `frontend`
+4. Railway sẽ tự động detect Dockerfile và build React app
 
 **Environment Variables:**
 ```
