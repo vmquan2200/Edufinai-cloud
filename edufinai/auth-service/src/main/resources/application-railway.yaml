@@ -3,11 +3,12 @@ server:
 
 spring:
   datasource:
-    # Railway cung cấp MYSQL_URL hoặc các biến riêng lẻ
+    # Railway cung cấp MYSQL_URL hoặc các biến riêng lẻ từ MySQL service
     # Format: mysql://user:password@host:port/database
-    url: ${MYSQL_URL:jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:identity}?useSSL=true&allowPublicKeyRetrieval=true&characterEncoding=UTF-8}
-    username: ${MYSQL_USER:root}
-    password: ${MYSQL_PASSWORD:123456}
+    # Chuyển đổi từ MYSQL_URL sang JDBC format hoặc dùng các biến riêng lẻ
+    url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:identity}?useSSL=true&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: ${MYSQLUSER:root}
+    password: ${MYSQLPASSWORD:123456}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

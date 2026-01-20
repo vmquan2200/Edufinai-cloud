@@ -1,0 +1,45 @@
+# ============================================
+# Railway Environment Variables cho AI Service
+# Copy các biến này vào Railway Dashboard → Variables
+# ============================================
+
+# Database Connection (Reference từ MySQL Service)
+# Thay "MySQL" bằng tên service MySQL của bạn trên Railway
+MYSQLHOST=${{MySQL.RAILWAY_PRIVATE_DOMAIN}}
+MYSQLPORT=3306
+MYSQLDATABASE=ai_service
+MYSQLUSER=root
+MYSQLPASSWORD=${{MySQL.MYSQL_ROOT_PASSWORD}}
+
+# Eureka Server Connection (Reference từ Eureka Service)
+# Thay "Eureka" bằng tên service Eureka của bạn trên Railway
+EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${{Eureka.RAILWAY_PUBLIC_DOMAIN}}/eureka/
+
+# Service Instance Configuration
+EUREKA_INSTANCE_HOSTNAME=ai-service
+EUREKA_INSTANCE_IP=ai-service
+EUREKA_SECURE_PORT_ENABLED=true
+EUREKA_NON_SECURE_PORT_ENABLED=false
+
+# Spring Profile
+SPRING_PROFILES_ACTIVE=railway
+
+# Gemini API Key (REQUIRED - bạn cần lấy từ Google AI Studio)
+GEMINI_API_KEY=your-gemini-api-key-here
+
+# CORS Configuration (Optional)
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000
+
+# Service URLs (Optional - sẽ được resolve qua Eureka)
+FINANCE_SERVICE_URL=http://finance-service
+AUTH_SERVICE_URL=http://auth-service
+GAMIFICATION_SERVICE_URL=http://gamification-service
+LEARNING_SERVICE_URL=http://learning-service
+
+# ============================================
+# LƯU Ý:
+# 1. Database name: ai_service (đảm bảo database này đã được tạo trong MySQL)
+# 2. Đảm bảo MySQL và Eureka services đã được deploy trước
+# 3. GEMINI_API_KEY là REQUIRED - lấy từ https://aistudio.google.com/
+# 4. Railway tự động inject PORT variable
+# ============================================

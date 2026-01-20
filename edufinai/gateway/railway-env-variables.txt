@@ -1,0 +1,29 @@
+# ============================================
+# Railway Environment Variables cho Gateway Service
+# Copy các biến này vào Railway Dashboard → Variables
+# ============================================
+
+# Eureka Server Connection (Reference từ Eureka Service)
+# Thay "Eureka" bằng tên service Eureka của bạn trên Railway
+# Hoặc thay bằng URL public domain thực tế: https://eureka-production.up.railway.app/eureka/
+EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${{Eureka.RAILWAY_PUBLIC_DOMAIN}}/eureka/
+
+# Service Instance Configuration
+EUREKA_INSTANCE_HOSTNAME=gateway
+EUREKA_INSTANCE_IP=gateway
+EUREKA_SECURE_PORT_ENABLED=true
+EUREKA_NON_SECURE_PORT_ENABLED=false
+
+# Spring Profile
+SPRING_PROFILES_ACTIVE=railway
+
+# CORS Configuration (Optional)
+CORS_ALLOWED_ORIGINS=*
+
+# ============================================
+# LƯU Ý:
+# 1. Gateway không cần database, chỉ cần kết nối Eureka
+# 2. Đảm bảo Eureka service đã được deploy trước
+# 3. Gateway sẽ route requests đến các microservices qua Eureka
+# 4. Railway tự động inject PORT variable
+# ============================================

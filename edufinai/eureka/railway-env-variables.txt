@@ -1,0 +1,17 @@
+# ============================================
+# Railway Environment Variables cho Eureka Service
+# Copy các biến này vào Railway Dashboard → Variables
+# ============================================
+
+# Spring Profile
+SPRING_PROFILES_ACTIVE=railway
+
+# Port (Railway tự động inject PORT, nhưng có thể set default)
+# PORT sẽ được Railway tự động set, không cần thêm
+
+# ============================================
+# LƯU Ý:
+# 1. Eureka là service discovery, không cần database
+# 2. Eureka không register với chính nó (register-with-eureka=false)
+# 3. Railway tự động inject PORT variable
+# ============================================

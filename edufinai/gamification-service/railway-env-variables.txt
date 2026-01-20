@@ -1,0 +1,42 @@
+# ============================================
+# Railway Environment Variables cho Gamification Service
+# Copy các biến này vào Railway Dashboard → Variables
+# ============================================
+
+# Database Connection (Reference từ MySQL Service)
+# Thay "MySQL" bằng tên service MySQL của bạn trên Railway
+MYSQLHOST=${{MySQL.RAILWAY_PRIVATE_DOMAIN}}
+MYSQLPORT=3306
+MYSQLDATABASE=gamification
+MYSQLUSER=root
+MYSQLPASSWORD=${{MySQL.MYSQL_ROOT_PASSWORD}}
+
+# Eureka Server Connection (Reference từ Eureka Service)
+# Thay "Eureka" bằng tên service Eureka của bạn trên Railway
+EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${{Eureka.RAILWAY_PUBLIC_DOMAIN}}/eureka/
+
+# Service Instance Configuration
+EUREKA_INSTANCE_HOSTNAME=gamification-service
+EUREKA_INSTANCE_IP=gamification-service
+EUREKA_SECURE_PORT_ENABLED=true
+EUREKA_NON_SECURE_PORT_ENABLED=false
+
+# Spring Profile
+SPRING_PROFILES_ACTIVE=railway
+
+# Redis Configuration (Optional - nếu có Redis service)
+# Nếu không có Redis, service vẫn chạy được nhưng một số tính năng có thể không hoạt động
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# Service URL (Optional)
+GAMIFICATION_SERVICE_URL=http://gamification-service
+
+# ============================================
+# LƯU Ý:
+# 1. Database name: gamification (đảm bảo database này đã được tạo trong MySQL)
+# 2. Đảm bảo MySQL và Eureka services đã được deploy trước
+# 3. Redis là optional, nếu không có thì bỏ qua các biến REDIS_*
+# 4. Railway tự động inject PORT variable
+# ============================================
