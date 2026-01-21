@@ -28,9 +28,10 @@ eureka:
     prefer-ip-address: false
     hostname: ${EUREKA_INSTANCE_HOSTNAME:auth-service}
     ip-address: ${EUREKA_INSTANCE_IP:auth-service}
-    # Railway sử dụng HTTPS cho public URLs
-    secure-port-enabled: ${EUREKA_SECURE_PORT_ENABLED:true}
-    non-secure-port-enabled: ${EUREKA_NON_SECURE_PORT_ENABLED:false}
+    # IMPORTANT (Railway internal): service-to-service traffic is HTTP.
+    # Register as non-secure so Gateway uses HTTP when calling this service.
+    secure-port-enabled: false
+    non-secure-port-enabled: true
 
 jwt:
   signerKey: ${JWT_SECRET:1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij}

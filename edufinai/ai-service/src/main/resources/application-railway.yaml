@@ -23,8 +23,8 @@ eureka:
     prefer-ip-address: false
     hostname: ${EUREKA_INSTANCE_HOSTNAME:ai-service}
     ip-address: ${EUREKA_INSTANCE_IP:ai-service}
-    secure-port-enabled: ${EUREKA_SECURE_PORT_ENABLED:true}
-    non-secure-port-enabled: ${EUREKA_NON_SECURE_PORT_ENABLED:false}
+    secure-port-enabled: false
+    non-secure-port-enabled: true
 
 services:
   transaction:

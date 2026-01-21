@@ -99,5 +99,7 @@ eureka:
     prefer-ip-address: false
     hostname: ${EUREKA_INSTANCE_HOSTNAME:gateway}
     ip-address: ${EUREKA_INSTANCE_IP:gateway}
-    secure-port-enabled: ${EUREKA_SECURE_PORT_ENABLED:true}
-    non-secure-port-enabled: ${EUREKA_NON_SECURE_PORT_ENABLED:false}
+    # IMPORTANT (Railway internal): service-to-service traffic is HTTP.
+    # If secure-port-enabled=true, clients (Gateway) will try HTTPS to other services and fail with NotSslRecordException.
+    secure-port-enabled: false
+    non-secure-port-enabled: true
