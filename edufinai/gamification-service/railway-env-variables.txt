@@ -18,8 +18,6 @@ EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${{Eureka.RAILWAY_PUBLIC_DOMAIN}}/eureka/
 # Service Instance Configuration
 EUREKA_INSTANCE_HOSTNAME=gamification-service
 EUREKA_INSTANCE_IP=gamification-service
-EUREKA_SECURE_PORT_ENABLED=true
-EUREKA_NON_SECURE_PORT_ENABLED=false
 
 # Spring Profile
 SPRING_PROFILES_ACTIVE=railway

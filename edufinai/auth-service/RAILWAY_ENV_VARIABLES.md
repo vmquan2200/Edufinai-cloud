@@ -54,8 +54,6 @@ EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://${{Eureka.RAILWAY_PRIVATE_DOMAIN}}:
 ```
 EUREKA_INSTANCE_HOSTNAME=auth-service
 EUREKA_INSTANCE_IP=auth-service
-EUREKA_SECURE_PORT_ENABLED=true
-EUREKA_NON_SECURE_PORT_ENABLED=false
 ```
 
 ### 4. JWT Configuration (Optional - có default values)
