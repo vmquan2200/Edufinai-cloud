@@ -13,6 +13,7 @@ import vn.uth.gamificationservice.service.ChallengeService;
 import vn.uth.gamificationservice.service.UserService;
 
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -98,11 +99,13 @@ public class ChallengeController {
 
     @GetMapping("/me")
     public Object me(JwtAuthenticationToken token) {
-        String sub = token.getToken().getClaim("sub");
-        String scope = token.getToken().getClaim("scope");
-        return Map.of(
-                "sub", sub,
-                "scope", scope
-        );
+        // Avoid Map.of(...) because it throws NPE when any value is null (claims may be absent).
+        String sub = token != null ? token.getToken().getClaimAsString("sub") : null;
+        String scope = token != null ? token.getToken().getClaimAsString("scope") : null;
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("sub", sub);
+        resp.put("scope", scope);
+        resp.put("name", token != null ? token.getName() : null);
+        return resp;
     }
 }

@@ -14,7 +14,8 @@ import java.util.UUID;
 public class UserService {
     public final RestTemplate restTemplate;
 
-    private static final String AUTH_URL = "http://auth-service";
+    // Use Eureka serviceId (matches spring.application.name in auth-service: AUTH-SERVICE)
+    private static final String AUTH_URL = "http://AUTH-SERVICE";
     private static final String INTERNAL_CLIENT_HEADER = "EduFinAI-Internal-Secret";
 
     public UserService(RestTemplate restTemplate) {
