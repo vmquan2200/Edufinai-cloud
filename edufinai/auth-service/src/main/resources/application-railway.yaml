@@ -26,8 +26,10 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: false
-    hostname: ${EUREKA_INSTANCE_HOSTNAME:auth-service}
-    ip-address: ${EUREKA_INSTANCE_IP:auth-service}
+    # Railway private networking: each service gets RAILWAY_PRIVATE_DOMAIN.
+    # If you override hostname/ip with something like "auth-service", Gateway may not be able to resolve it.
+    hostname: ${RAILWAY_PRIVATE_DOMAIN:${EUREKA_INSTANCE_HOSTNAME:auth-service}}
+    ip-address: ${RAILWAY_PRIVATE_DOMAIN:${EUREKA_INSTANCE_IP:auth-service}}
     # IMPORTANT (Railway internal): service-to-service traffic is HTTP.
     # Register as non-secure so Gateway uses HTTP when calling this service.
     secure-port-enabled: false

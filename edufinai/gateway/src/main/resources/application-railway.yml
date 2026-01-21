@@ -97,8 +97,8 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: false
-    hostname: ${EUREKA_INSTANCE_HOSTNAME:gateway}
-    ip-address: ${EUREKA_INSTANCE_IP:gateway}
+    hostname: ${RAILWAY_PRIVATE_DOMAIN:${EUREKA_INSTANCE_HOSTNAME:gateway}}
+    ip-address: ${RAILWAY_PRIVATE_DOMAIN:${EUREKA_INSTANCE_IP:gateway}}
     # IMPORTANT (Railway internal): service-to-service traffic is HTTP.
     # If secure-port-enabled=true, clients (Gateway) will try HTTPS to other services and fail with NotSslRecordException.
     secure-port-enabled: false

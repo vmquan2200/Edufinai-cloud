@@ -16,10 +16,6 @@ MYSQLPASSWORD=${{MySQL.MYSQL_ROOT_PASSWORD}}
 # Hoặc thay bằng URL public domain thực tế: https://eureka-production.up.railway.app/eureka/
 EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${{Eureka.RAILWAY_PUBLIC_DOMAIN}}/eureka/
 
-# Service Instance Configuration
-EUREKA_INSTANCE_HOSTNAME=auth-service
-EUREKA_INSTANCE_IP=auth-service
-
 # Spring Profile
 SPRING_PROFILES_ACTIVE=railway
 
