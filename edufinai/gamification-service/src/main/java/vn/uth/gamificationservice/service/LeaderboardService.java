@@ -2,6 +2,7 @@ package vn.uth.gamificationservice.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -33,22 +34,30 @@ public class LeaderboardService {
      */
     public LeaderboardResponse getTop(int topNumber, LeaderboardType type) {
         String key = getLeaderboardKey(type);
-        Set<String> members = redisTemplate.opsForZSet().reverseRange(key, 0, topNumber - 1);
-        if (members == null || members.isEmpty())
-            return new LeaderboardResponse(Collections.emptyList(), "SUCCESS");
+        try {
+            Set<String> members = redisTemplate.opsForZSet().reverseRange(key, 0, topNumber - 1);
+            if (members == null || members.isEmpty()) {
+                return new LeaderboardResponse(Collections.emptyList(), "SUCCESS");
+            }
 
-        List<LeaderboardEntry> result = new ArrayList<>();
+            List<LeaderboardEntry> result = new ArrayList<>();
+            int rank = 1;
+            for (String memberStr : members) {
+                UUID member = UUID.fromString(memberStr);
+                Double score = redisTemplate.opsForZSet().score(key, memberStr);
+                result.add(buildEntry(member, score != null ? score : 0.0, rank));
+                rank++;
+            }
 
-        int rank = 1;
-
-        for (String memberStr : members) {
-            UUID member = UUID.fromString(memberStr);
-            Double score = redisTemplate.opsForZSet().score(key, memberStr);
-            result.add(buildEntry(member, score != null ? score : 0.0, rank));
-            rank++;
+            return new LeaderboardResponse(result, "SUCCESS");
+        } catch (RedisConnectionFailureException ex) {
+            log.error("Redis connection failed when fetching leaderboard for key {}", key, ex);
+            // Fallback: không làm sập API, trả danh sách rỗng để frontend vẫn hoạt động
+            return new LeaderboardResponse(Collections.emptyList(), "REDIS_UNAVAILABLE");
+        } catch (Exception ex) {
+            log.error("Unexpected error when fetching leaderboard for key {}", key, ex);
+            return new LeaderboardResponse(Collections.emptyList(), "ERROR");
         }
-
-        return new LeaderboardResponse(result, "SUCCESS");
     }
 
     /**
@@ -56,29 +65,36 @@ public class LeaderboardService {
      */
 
     public ApiResponse<LeaderboardEntry> getCurrentUserTop(LeaderboardType type) {
-        UserInfo userInfo = this.userService.getMyInfo();
         String key = getLeaderboardKey(type);
-        String userIdStr = userInfo.getId().toString();
+        try {
+            UserInfo userInfo = this.userService.getMyInfo();
+            String userIdStr = userInfo.getId().toString();
 
-        Long myRankZeroBased = redisTemplate.opsForZSet().reverseRank(key, userIdStr);
-        if (myRankZeroBased == null) {
+            Long myRankZeroBased = redisTemplate.opsForZSet().reverseRank(key, userIdStr);
+            if (myRankZeroBased == null) {
+                return ApiResponse.empty();
+            }
+
+            int myRank = myRankZeroBased.intValue() + 1;
+            Double myScore = redisTemplate.opsForZSet().score(key, userIdStr);
+            double safeScore = myScore != null ? myScore : 0.0;
+
+            LeaderboardEntry myTopInfo = new LeaderboardEntry(
+                    userInfo.getId(),
+                    safeScore,
+                    myRank,
+                    buildFullName(userInfo.getFirstName(), userInfo.getLastName()),
+                    userInfo.getUsername()
+            );
+            return new ApiResponse<>(200, myTopInfo, "SUCCESS");
+        } catch (RedisConnectionFailureException ex) {
+            log.error("Redis connection failed when fetching current user leaderboard for key {}", key, ex);
+            // Không có Redis thì trả empty để frontend không bị 500
+            return ApiResponse.empty();
+        } catch (Exception ex) {
+            log.error("Unexpected error when fetching current user leaderboard for key {}", key, ex);
             return ApiResponse.empty();
         }
-
-        int myRank = myRankZeroBased.intValue() + 1;
-        Double myScore = redisTemplate.opsForZSet().score(key, userIdStr);
-        double safeScore = myScore != null ? myScore : 0.0;
-
-        LeaderboardEntry myTopInfo = new LeaderboardEntry(
-                userInfo.getId(),
-                safeScore,
-                myRank,
-                buildFullName(userInfo.getFirstName(), userInfo.getLastName()),
-                userInfo.getUsername()
-        );
-        ApiResponse<LeaderboardEntry> resp = new ApiResponse(200, myTopInfo, "SUCCESS");
-
-        return resp;
     }
 
     /**
