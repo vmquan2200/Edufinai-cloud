@@ -25,9 +25,8 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
   instance:
-    prefer-ip-address: false
-    # Railway private networking: each service gets RAILWAY_PRIVATE_DOMAIN.
-    # If you override hostname/ip with something like "auth-service", Gateway may not be able to resolve it.
+    # Use private domain as both hostname and IP; prefer IP to avoid container hostname fallback
+    prefer-ip-address: true
     hostname: ${RAILWAY_PRIVATE_DOMAIN:${EUREKA_INSTANCE_HOSTNAME:auth-service}}
     ip-address: ${RAILWAY_PRIVATE_DOMAIN:${EUREKA_INSTANCE_IP:auth-service}}
     # IMPORTANT (Railway internal): service-to-service traffic is HTTP.

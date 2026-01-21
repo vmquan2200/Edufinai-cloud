@@ -96,7 +96,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
   instance:
-    prefer-ip-address: false
+    prefer-ip-address: true
     hostname: ${RAILWAY_PRIVATE_DOMAIN:${EUREKA_INSTANCE_HOSTNAME:gateway}}
     ip-address: ${RAILWAY_PRIVATE_DOMAIN:${EUREKA_INSTANCE_IP:gateway}}
     # IMPORTANT (Railway internal): service-to-service traffic is HTTP.
