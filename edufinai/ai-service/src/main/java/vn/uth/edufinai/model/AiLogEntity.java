@@ -50,7 +50,7 @@ public class AiLogEntity {
 
     /** Formatted answer (đã parse từ JSON) */
     @Lob
-    @Column(name="formatted_answer")
+    @Column(name="formatted_answer", columnDefinition = "LONGTEXT")
     private String formattedAnswer;
 
     @Column(name="usage_prompt_tokens")

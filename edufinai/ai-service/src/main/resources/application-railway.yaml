@@ -12,6 +12,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
 
 eureka:
   client:
