@@ -4,7 +4,7 @@
  * Railway: Uses REACT_APP_API_URL environment variable
  */
 
-const AUTH_BASE_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/auth`;
+const AUTH_BASE_URL = `${process.env.REACT_APP_API_URL || 'https://gateway-production-b350.up.railway.app'}/auth`;
 
 /**
  * Get JWT token from localStorage

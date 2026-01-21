@@ -3,7 +3,7 @@
  * Base URL: http://localhost:8080/gamification (via Gateway)
  */
 
-const GATEWAY_BASE_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/gamification`;
+const GATEWAY_BASE_URL = `${process.env.REACT_APP_API_URL || 'https://gateway-production-b350.up.railway.app'}/gamification`;
 
 /**
  * Get JWT token from localStorage

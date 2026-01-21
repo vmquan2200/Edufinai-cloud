@@ -1,4 +1,4 @@
-const NOTIFICATION_BASE_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/notification`;
+const NOTIFICATION_BASE_URL = `${process.env.REACT_APP_API_URL || 'https://gateway-production-b350.up.railway.app'}/notification`;
 
 const getAuthHeaders = (jwtToken) => {
     const token = jwtToken || localStorage.getItem('jwt_token');
