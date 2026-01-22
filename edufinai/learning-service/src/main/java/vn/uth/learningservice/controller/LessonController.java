@@ -78,22 +78,41 @@ public class LessonController {
             @Valid @RequestBody LessonCreateReq request) {
         try {
             log.info("Creating lesson with title: {}", request.getTitle());
+            log.debug("Request data: title={}, difficulty={}, tags={}, durationMinutes={}", 
+                    request.getTitle(), request.getDifficulty(), request.getTags(), request.getDurationMinutes());
             
+            // Step 1: Get user info
+            log.info("Step 1: Getting user info from auth-service");
             var userInfo = userService.getMyInfo();
             if (userInfo == null || userInfo.getId() == null) {
                 log.error("User info is null or missing ID");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .build();
             }
+            log.info("Step 1 completed: User info retrieved, creator ID: {}", userInfo.getId());
             
-            log.info("User info retrieved, creator ID: {}", userInfo.getId());
+            // Step 2: Get or create creator
+            log.info("Step 2: Getting or creating creator");
             UUID creatorId = userInfo.getId();
             Creator creator = creatorService.getOrCreate(creatorId);
-            log.info("Creator retrieved/created: {}", creator.getId());
+            log.info("Step 2 completed: Creator retrieved/created: {}", creator.getId());
 
-            Lesson lesson = lessonMapper.toEntity(request, objectMapper);
+            // Step 3: Map request to entity
+            log.info("Step 3: Mapping request to entity");
+            Lesson lesson;
+            try {
+                lesson = lessonMapper.toEntity(request, objectMapper);
+                log.info("Step 3 completed: Entity mapped successfully");
+            } catch (Exception e) {
+                log.error("Step 3 failed: Error mapping request to entity: {}", e.getMessage(), e);
+                throw new RuntimeException("Failed to map lesson data: " + e.getMessage(), e);
+            }
+            
             lesson.setCreator(creator);
+            log.debug("Creator set on lesson");
 
+            // Step 4: Generate slug
+            log.info("Step 4: Generating slug");
             String slug = Lesson.slugify(request.getTitle());
             String finalSlug = slug;
             int counter = 1;
@@ -102,26 +121,82 @@ public class LessonController {
                 counter++;
             }
             lesson.setSlug(finalSlug);
-            log.info("Lesson slug generated: {}", finalSlug);
+            log.info("Step 4 completed: Lesson slug generated: {}", finalSlug);
 
+            // Step 5: Set timestamps and status
+            log.info("Step 5: Setting timestamps and status");
             LocalDateTime now = LocalDateTime.now();
             lesson.setCreatedAt(now);
             lesson.setUpdatedAt(now);
             lesson.setStatus(Lesson.Status.DRAFT);
+            log.info("Step 5 completed: Timestamps and status set");
 
-            Lesson savedLesson = lessonService.create(lesson);
-            log.info("Lesson created successfully with ID: {}", savedLesson.getId());
+            // Step 6: Validate lesson before save
+            log.info("Step 6: Validating lesson");
+            if (lesson.getTitle() == null || lesson.getTitle().isBlank()) {
+                throw new IllegalArgumentException("Lesson title cannot be blank");
+            }
+            if (lesson.getContent() == null || lesson.getContent().isBlank()) {
+                throw new IllegalArgumentException("Lesson content cannot be blank");
+            }
+            if (lesson.getDifficulty() == null) {
+                throw new IllegalArgumentException("Lesson difficulty cannot be null");
+            }
+            if (lesson.getTags() == null || lesson.getTags().isEmpty()) {
+                throw new IllegalArgumentException("Lesson must have at least one tag");
+            }
+            log.info("Step 6 completed: Lesson validation passed");
+
+            // Step 7: Save lesson
+            log.info("Step 7: Saving lesson to database");
+            Lesson savedLesson;
+            try {
+                savedLesson = lessonService.create(lesson);
+                log.info("Step 7 completed: Lesson saved successfully with ID: {}", savedLesson.getId());
+            } catch (Exception e) {
+                log.error("Step 7 failed: Error saving lesson to database: {}", e.getMessage(), e);
+                if (e.getCause() != null) {
+                    log.error("Root cause: {}", e.getCause().getMessage(), e.getCause());
+                }
+                throw new RuntimeException("Failed to save lesson: " + e.getMessage(), e);
+            }
             
-            LessonRes response = lessonMapper.toRes(savedLesson, objectMapper);
+            // Step 8: Map to response
+            log.info("Step 8: Mapping lesson to response");
+            LessonRes response;
+            try {
+                response = lessonMapper.toRes(savedLesson, objectMapper);
+                log.info("Step 8 completed: Response mapped successfully");
+            } catch (Exception e) {
+                log.error("Step 8 failed: Error mapping lesson to response: {}", e.getMessage(), e);
+                throw new RuntimeException("Failed to map lesson response: " + e.getMessage(), e);
+            }
+            
+            log.info("Lesson creation completed successfully. Lesson ID: {}", savedLesson.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            
         } catch (IllegalStateException e) {
             // Lỗi khi gọi auth-service
             log.error("Error calling auth-service: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
+        } catch (IllegalArgumentException e) {
+            // Validation error
+            log.error("Validation error: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .build();
+        } catch (RuntimeException e) {
+            // Lỗi mapping hoặc database
+            log.error("Runtime error creating lesson: {}", e.getMessage(), e);
+            if (e.getCause() != null) {
+                log.error("Caused by: {}", e.getCause().getMessage(), e.getCause());
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
         } catch (Exception e) {
-            // Lỗi khác (validation, database, etc.)
-            log.error("Error creating lesson: {}", e.getMessage(), e);
+            // Lỗi khác
+            log.error("Unexpected error creating lesson: {}", e.getMessage(), e);
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();
         }

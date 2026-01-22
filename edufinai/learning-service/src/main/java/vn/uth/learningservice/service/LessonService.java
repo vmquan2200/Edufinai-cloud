@@ -1,6 +1,8 @@
 package vn.uth.learningservice.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.uth.learningservice.model.Lesson;
@@ -12,6 +14,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LessonService {
 
     private final LessonRepository lessonRepo;
@@ -74,11 +77,55 @@ public class LessonService {
 
     @Transactional
     public Lesson create(Lesson lesson) {
-        if (lesson.getSlug() != null && lessonRepo.existsBySlug(lesson.getSlug())) {
+        log.info("LessonService.create() called for lesson with title: {}", lesson.getTitle());
+        
+        if (lesson.getSlug() == null || lesson.getSlug().isBlank()) {
+            log.error("Lesson slug is null or blank");
+            throw new IllegalArgumentException("Lesson slug cannot be null or blank");
+        }
+        if (lessonRepo.existsBySlug(lesson.getSlug())) {
+            log.error("Slug already exists: {}", lesson.getSlug());
             throw new IllegalArgumentException("Slug already exists: " + lesson.getSlug());
         }
+        if (lesson.getCreator() == null || lesson.getCreator().getId() == null) {
+            log.error("Lesson creator is null or missing ID");
+            throw new IllegalArgumentException("Lesson must have a creator");
+        }
+        if (lesson.getCreatedAt() == null) {
+            log.error("Lesson createdAt is null");
+            throw new IllegalArgumentException("Lesson createdAt cannot be null");
+        }
+        if (lesson.getUpdatedAt() == null) {
+            log.error("Lesson updatedAt is null");
+            throw new IllegalArgumentException("Lesson updatedAt cannot be null");
+        }
+        if (lesson.getStatus() == null) {
+            log.error("Lesson status is null");
+            throw new IllegalArgumentException("Lesson status cannot be null");
+        }
+        
+        log.debug("Lesson validation passed. Calculating total questions from quizJson");
         lesson.setTotalQuestions(calculateTotalQuestions(lesson.getQuizJson()));
-        return lessonRepo.save(lesson);
+        log.debug("Total questions calculated: {}", lesson.getTotalQuestions());
+        
+        try {
+            log.info("Saving lesson to database...");
+            Lesson saved = lessonRepo.save(lesson);
+            log.info("Lesson saved successfully with ID: {}", saved.getId());
+            return saved;
+        } catch (DataIntegrityViolationException e) {
+            log.error("Database constraint violation when saving lesson: {}", e.getMessage(), e);
+            if (e.getCause() != null) {
+                log.error("Root cause: {}", e.getCause().getMessage());
+            }
+            throw new IllegalArgumentException("Database constraint violation: " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Unexpected error saving lesson: {}", e.getMessage(), e);
+            if (e.getCause() != null) {
+                log.error("Root cause: {}", e.getCause().getMessage());
+            }
+            throw new RuntimeException("Failed to save lesson: " + e.getMessage(), e);
+        }
     }
 
     @Transactional
