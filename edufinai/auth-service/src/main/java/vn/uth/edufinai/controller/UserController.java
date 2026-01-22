@@ -111,4 +111,18 @@ public class UserController {
                 .result(userService.createUserByAdmin(request))
                 .build();
     }
+
+    @PatchMapping("/{userId}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    ApiResponse<UserResponse> updateUserRole(
+            @PathVariable("userId") String userId,
+            @RequestBody java.util.Map<String, String> request) {
+        String roleName = request.get("role");
+        if (roleName == null || roleName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Role is required");
+        }
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.updateUserRole(userId, roleName))
+                .build();
+    }
 }

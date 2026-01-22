@@ -61,10 +61,13 @@ public class UserService {
     public UserResponse createUserByAdmin(AdminUserCreationRequest request) {
         // Validate role
         String roleName = request.getRole();
+        log.info("Creating user with role: {}", roleName);
+        
         if (!roleName.equals(PredefinedRole.LEARNER_ROLE)
                 && !roleName.equals(PredefinedRole.CREATOR_ROLE)
                 && !roleName.equals(PredefinedRole.MOD_ROLE)
                 && !roleName.equals(PredefinedRole.ADMIN_ROLE)) {
+            log.error("Invalid role provided: {}", roleName);
             throw new AppException(ErrorCode.INVALID_KEY); // Using INVALID_KEY for invalid role
         }
 
@@ -82,12 +85,28 @@ public class UserService {
         // Set the role specified by admin
         HashSet<Role> roles = new HashSet<>();
         Role role = roleRepository.findById(roleName)
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_KEY));
+                .orElseThrow(() -> {
+                    log.error("Role not found in database: {}", roleName);
+                    return new AppException(ErrorCode.INVALID_KEY);
+                });
         roles.add(role);
         user.setRoles(roles);
+        
+        // Log để verify role được set đúng
+        log.info("User created with roles: {}", user.getRoles().stream()
+                .map(Role::getName)
+                .toList());
 
         try {
             user = userRepository.save(user);
+            
+            // Verify role sau khi save
+            User savedUser = userRepository.findById(user.getId())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            log.info("User saved with ID: {}, roles: {}", savedUser.getId(), 
+                    savedUser.getRoles().stream()
+                            .map(Role::getName)
+                            .toList());
         } catch (DataIntegrityViolationException exception) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
@@ -100,6 +119,12 @@ public class UserService {
         String name = context.getAuthentication().getName();
 
         User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        
+        // Log để debug role
+        log.info("getMyInfo for user: {}, roles: {}", name, 
+                user.getRoles().stream()
+                        .map(Role::getName)
+                        .toList());
 
         return userMapper.toUserResponse(user);
     }
@@ -189,5 +214,48 @@ public class UserService {
     public UserResponse getUser(String id) {
         return userMapper.toUserResponse(
                 userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse updateUserRole(String userId, String roleName) {
+        log.info("Updating role for user {} to role: {}", userId, roleName);
+        
+        // Validate role
+        if (!roleName.equals(PredefinedRole.LEARNER_ROLE)
+                && !roleName.equals(PredefinedRole.CREATOR_ROLE)
+                && !roleName.equals(PredefinedRole.MOD_ROLE)
+                && !roleName.equals(PredefinedRole.ADMIN_ROLE)) {
+            log.error("Invalid role provided: {}", roleName);
+            throw new AppException(ErrorCode.INVALID_KEY);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Log current roles
+        log.info("User {} current roles: {}", userId, 
+                user.getRoles().stream()
+                        .map(Role::getName)
+                        .toList());
+
+        // Set new role
+        HashSet<Role> roles = new HashSet<>();
+        Role role = roleRepository.findById(roleName)
+                .orElseThrow(() -> {
+                    log.error("Role not found in database: {}", roleName);
+                    return new AppException(ErrorCode.INVALID_KEY);
+                });
+        roles.add(role);
+        user.setRoles(roles);
+
+        user = userRepository.save(user);
+        
+        // Verify role after save
+        log.info("User {} updated with new roles: {}", userId,
+                user.getRoles().stream()
+                        .map(Role::getName)
+                        .toList());
+
+        return userMapper.toUserResponse(user);
     }
 }

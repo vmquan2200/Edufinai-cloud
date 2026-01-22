@@ -203,13 +203,26 @@ public class AuthenticationService {
     private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
 
-        if (!CollectionUtils.isEmpty(user.getRoles()))
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            log.info("Building scope for user: {}, roles: {}", user.getUsername(),
+                    user.getRoles().stream()
+                            .map(role -> role.getName())
+                            .toList());
+            
             user.getRoles().forEach(role -> {
-                stringJoiner.add("ROLE_" + role.getName());
+                String roleName = role.getName();
+                stringJoiner.add("ROLE_" + roleName);
+                log.debug("Added role to scope: ROLE_{}", roleName);
+                
                 if (!CollectionUtils.isEmpty(role.getPermissions()))
                     role.getPermissions().forEach(permission -> stringJoiner.add(permission.getName()));
             });
+        } else {
+            log.warn("User {} has no roles assigned", user.getUsername());
+        }
 
-        return stringJoiner.toString();
+        String scope = stringJoiner.toString();
+        log.info("Final scope for user {}: {}", user.getUsername(), scope);
+        return scope;
     }
 }
