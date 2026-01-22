@@ -3,6 +3,7 @@ package vn.uth.learningservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/lessons")
+@Slf4j
 public class LessonController {
 
     private final LessonService lessonService;
@@ -74,31 +76,55 @@ public class LessonController {
     @PreAuthorize("hasAuthority('SCOPE_ROLE_CREATOR')")
     public ResponseEntity<LessonRes> createLesson(
             @Valid @RequestBody LessonCreateReq request) {
+        try {
+            log.info("Creating lesson with title: {}", request.getTitle());
+            
+            var userInfo = userService.getMyInfo();
+            if (userInfo == null || userInfo.getId() == null) {
+                log.error("User info is null or missing ID");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .build();
+            }
+            
+            log.info("User info retrieved, creator ID: {}", userInfo.getId());
+            UUID creatorId = userInfo.getId();
+            Creator creator = creatorService.getOrCreate(creatorId);
+            log.info("Creator retrieved/created: {}", creator.getId());
 
-        var userInfo = userService.getMyInfo();
-        UUID creatorId = userInfo.getId();
-        Creator creator = creatorService.getOrCreate(creatorId);
+            Lesson lesson = lessonMapper.toEntity(request, objectMapper);
+            lesson.setCreator(creator);
 
-        Lesson lesson = lessonMapper.toEntity(request, objectMapper);
-        lesson.setCreator(creator);
+            String slug = Lesson.slugify(request.getTitle());
+            String finalSlug = slug;
+            int counter = 1;
+            while (lessonService.existsBySlug(finalSlug)) {
+                finalSlug = slug + "-" + counter;
+                counter++;
+            }
+            lesson.setSlug(finalSlug);
+            log.info("Lesson slug generated: {}", finalSlug);
 
-        String slug = Lesson.slugify(request.getTitle());
-        String finalSlug = slug;
-        int counter = 1;
-        while (lessonService.existsBySlug(finalSlug)) {
-            finalSlug = slug + "-" + counter;
-            counter++;
+            LocalDateTime now = LocalDateTime.now();
+            lesson.setCreatedAt(now);
+            lesson.setUpdatedAt(now);
+            lesson.setStatus(Lesson.Status.DRAFT);
+
+            Lesson savedLesson = lessonService.create(lesson);
+            log.info("Lesson created successfully with ID: {}", savedLesson.getId());
+            
+            LessonRes response = lessonMapper.toRes(savedLesson, objectMapper);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalStateException e) {
+            // Lỗi khi gọi auth-service
+            log.error("Error calling auth-service: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        } catch (Exception e) {
+            // Lỗi khác (validation, database, etc.)
+            log.error("Error creating lesson: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
         }
-        lesson.setSlug(finalSlug);
-
-        LocalDateTime now = LocalDateTime.now();
-        lesson.setCreatedAt(now);
-        lesson.setUpdatedAt(now);
-        lesson.setStatus(Lesson.Status.DRAFT);
-
-        Lesson savedLesson = lessonService.create(lesson);
-        LessonRes response = lessonMapper.toRes(savedLesson, objectMapper);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{lessonId}")

@@ -14,7 +14,7 @@ import java.util.UUID;
 public class UserService {
     public final RestTemplate restTemplate;
 
-    private static final String AUTH_URL = "http://auth-service";
+    private static final String AUTH_URL = "http://AUTH-SERVICE";
 
     public UserService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -46,7 +46,7 @@ public class UserService {
             return body.getResult();
 
         } catch (RestClientException ex) {
-            throw new IllegalStateException("Error calling auth-service my-info", ex);
+            throw new IllegalStateException("Error calling auth-service my-info: " + ex.getMessage(), ex);
         }
     }
 
